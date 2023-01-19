@@ -1,3 +1,4 @@
+## Week 1 Minutes
 1/10/23 <br />
 We decided to use GitHub for uploading code and tracking our minutes and actions. <br />
 We will continue to use the Wright State sharepoint for storing our documents. <br />
