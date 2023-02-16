@@ -10,6 +10,7 @@ The first card game we will program and test will be Blackjack. <br />
 1/17/23 <br />
 Every team member will test out different 3D design software and recommend which one they think will work best for the project. <br />
 
+## Week 04 Decicions
 2/16/23 <br />
 To help the team members complete their actions, each team member will get time to take the Raspberry pi home so they can do extra work and testing with it. <br />
 
