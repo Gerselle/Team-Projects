@@ -9,3 +9,10 @@ The first card game we will program and test will be Blackjack. <br />
 
 1/17/23 <br />
 Every team member will test out different 3D design software and recommend which one they think will work best for the project. <br />
+
+2/16/23 <br />
+To help the team members complete their actions, each team member will get time to take the Raspberry pi home so they can do extra work and testing with it. <br />
+
+For action 45, OpenCV will need to be installed overnight as part of onto the Raspberry pi because of the slow instalation speed. <br />
+
+Decided on username and password for the robot's interface as part of action 44. <br />
