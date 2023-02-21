@@ -20,31 +20,32 @@ def scanCard():
     printSuit = "Clubs"
     printValue = "Ace"
 
-    # Take a single frame from the camera feed
-    ret, frame = camera.read()
+    for x in range(0, 15):
+        # Take a single frame from the camera feed
+        ret, frame = camera.read()
 
-    # Convert frame from RGB to greyscale, then apply threshold for better reading
-    check = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-    ret, thresh = cv2.threshold(check, 125, 255, cv2.THRESH_BINARY)
+        # Convert frame from RGB to greyscale, then apply threshold for better reading
+        check = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        ret, thresh = cv2.threshold(check, 125, 255, cv2.THRESH_BINARY)
 
-    # For both suits and value (17 checks a frame), look for the most accurate "suit of value" reading
-    for suit in suits:
-        suitPic =  cv2.imread("Suits/" + suit + ".png",  cv2.IMREAD_GRAYSCALE)
-        test = cv2.matchTemplate(thresh, suitPic, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(test)
+        # For both suits and value (17 checks a frame), look for the most accurate "suit of value" reading
+        for suit in suits:
+            suitPic =  cv2.imread("Suits/" + suit + ".png",  cv2.IMREAD_GRAYSCALE)
+            test = cv2.matchTemplate(thresh, suitPic, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(test)
 
-        if max_val > bestSuit:
-            bestSuit = max_val
-            printSuit = suit
-        
-    for value in values:
-        valuePic =  cv2.imread("Values/" + value + ".png",  cv2.IMREAD_GRAYSCALE)
-        test = cv2.matchTemplate(thresh, valuePic, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(test)
+            if max_val > bestSuit:
+                bestSuit = max_val
+                printSuit = suit
+            
+        for value in values:
+            valuePic =  cv2.imread("Values/" + value + ".png",  cv2.IMREAD_GRAYSCALE)
+            test = cv2.matchTemplate(thresh, valuePic, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(test)
 
-        if max_val > bestValue:
-            bestValue = max_val
-            printValue = value
+            if max_val > bestValue:
+                bestValue = max_val
+                printValue = value
 
     camera.release()
     return printValue + " of " + printSuit

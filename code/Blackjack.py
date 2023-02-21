@@ -1,14 +1,14 @@
-import card_reader.CardScanner as CardScanner
+import Dealer
 
 dealer = []
 players = [[]]
 values = ["Two","Three","Four","Five","Six","Seven","Eight","Nine"]
 
-def deal(hand):
+def dealCard(hand, facedUp):
 
     # TODO: Change this manual input into its respective DealerMotor.py function call.
     input("Press enter button to deal card.")
-    card = CardScanner.scanCard()
+    card = Dealer.deal(facedUp)
 
     hand.append(card)
 
@@ -59,19 +59,19 @@ def check(hand):
 # CLI game starts here.
 print("Welcome to Blackjack!")
 
-# Manual dealing to players and dealer in proper order.
+# Dealing to players and dealer in proper order.
 for player in players:
-    deal(player)
+    dealCard(player, True)
     printHand(player, True)
 
-deal(dealer)
+dealCard(dealer, False)
 printHand(dealer, True)
 
 for player in players:
-    deal(player)
+    dealCard(player, True)
     printHand(player, True)
 
-deal(dealer)
+dealCard(dealer, True)
 printHand(dealer, True)
 
 print("\nDealer has the following hand:")
@@ -92,7 +92,7 @@ for player in players:
         hitMe = input("Do you want to hit? Press y if so.\n")
         if (hitMe == "y"):
             while(hitMe == "y"):
-                blackjack, bust = deal(player)
+                blackjack, bust = dealCard(player)
                 if (blackjack):
                     print("Player has Blackjack!")
                     break
@@ -117,7 +117,7 @@ printHand(dealer, True)
 if check(dealer) < 17:
     print("\nDealer's hand is less than 17, they must keeping hitting until their hand is equal or over 17.")
     while check(dealer) < 17:
-        blackjack, bust = deal(dealer)
+        blackjack, bust = dealCard(dealer)
         if bust:
             print("Dealer busted!\n The following player hands won the game: ")
             for player in remaining:
