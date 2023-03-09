@@ -18,7 +18,7 @@ For action 45, OpenCV will need to be installed overnight as part of onto the Ra
 
 Decided on username and password for the robot's interface as part of action 44. <br />
 
-## Week 06 Decicions
+## Week 07 Decicions
 3/9/23 <br />
 Action 48 will be delayed until our group is able to get the blackjack software integrated with the server. <br />
 
