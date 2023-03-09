@@ -17,3 +17,9 @@ To help the team members complete their actions, each team member will get time 
 For action 45, OpenCV will need to be installed overnight as part of onto the Raspberry pi because of the slow instalation speed. <br />
 
 Decided on username and password for the robot's interface as part of action 44. <br />
+
+## Week 06 Decicions
+3/9/23 <br />
+Action 48 will be delayed until our group is able to get the blackjack software integrated with the server. <br / >
+
+Due to complications with testing the CSI camera in action 53 we will be using the USB camera for testing all camera software for the time being. <br />
