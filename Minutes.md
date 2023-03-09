@@ -20,7 +20,7 @@ Decided on username and password for the robot's interface as part of action 44.
 
 ## Week 06 Decicions
 3/9/23 <br />
-Action 48 will be delayed until our group is able to get the blackjack software integrated with the server. <br / >
+Action 48 will be delayed until our group is able to get the blackjack software integrated with the server. <br />
 
 Due to complications with testing the CSI camera in action 53 we will be using the USB camera for testing all camera software for the time being. <br />
 
