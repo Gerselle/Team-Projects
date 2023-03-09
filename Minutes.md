@@ -23,3 +23,5 @@ Decided on username and password for the robot's interface as part of action 44.
 Action 48 will be delayed until our group is able to get the blackjack software integrated with the server. <br / >
 
 Due to complications with testing the CSI camera in action 53 we will be using the USB camera for testing all camera software for the time being. <br />
+
+We decided to split the prototype into multiple parts so it can be printed by multiple 3D printers. (Action 54) <br />
