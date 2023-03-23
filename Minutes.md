@@ -33,3 +33,4 @@ Decided to switch to using text files instead of SQL for storing user and game d
 ## Week 09 Decisions
 3/23/23 <br />
 The game software will use port 1337 for communicating with the game server. (Action 59) <br />
+To provide security to the game server we will close all ports except 22, 80, 443, and 1337 which are necessary for running our software. (Action 67) <br />
