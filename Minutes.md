@@ -29,3 +29,7 @@ We decided to split the prototype into multiple parts so it can be printed by mu
 ## Week 08 Decisions
 3/16/23 <br />
 Decided to switch to using text files instead of SQL for storing user and game data on the game server. (Action 62) <br />
+
+## Week 09 Decisions
+3/23/23 <br />
+The game software will use port 1337 for communicating with the game server. (Action 59) <br />
