@@ -37,4 +37,4 @@ To provide security to the game server we will close all ports except 22, 80, 44
 
 ## Week 10 Decisions
 3/30/23 <br />
-Due to some complications with the servo motor in our current turntable, we are going to 3D print a new turntable that uses our stepper motor.  <br />
+Due to some complications with the servo motor in our current turntable, we are going to 3D print a new turntable that uses our stepper motor. (Action 77) <br />
