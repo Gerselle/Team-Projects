@@ -1,0 +1,29 @@
+table{
+    border:1px solid #000; 
+    border-collapse:collapse; 
+    width:250px; 
+}
+th,td{
+    border:1px solid #000;
+}
+div {
+    display: block;
+    margin-bottom: 20px;
+}
+h2{
+    padding-left: 75px;
+}
+h3{
+    font-size: 32px;
+    color: #FFFFFF;
+    font-family: Franklin Gothic Medium;
+}
+label{
+    font-size: 24px;
+}
+input[type="text"]{
+    width: 200px;
+}
+body{
+    background-color: #659DBD;
+}
