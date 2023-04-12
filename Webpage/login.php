@@ -64,6 +64,12 @@ foreach($lines as $line) {
         <input type="submit"/>
         <div></div>
     </form>
+    <form action="index.php" method="post">
+    	<label for="">Don't have an account:</label><br />
+    	<button>
+        Create Account
+    	</button>
+    </form>
 </body>
 </head>
 </html>
