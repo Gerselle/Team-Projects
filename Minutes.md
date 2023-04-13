@@ -42,3 +42,8 @@ Due to some complications with the servo motor in our current turntable, we are 
 ## Week 11 Decisions
 4/6/23 <br />
 Decided to use face recognition for login instead of the standard login page that was part of action 66. <br />
+
+## Week 12 Decisions
+4/13/23 <br />
+Cards were getting stuck during testing of the shuffler so modifications are being made to the design in action 94 to alleviate this problem. <br />
+The dealer is dealing cards inconsistently so modifications are being made in action 95 to correct it. <br />
