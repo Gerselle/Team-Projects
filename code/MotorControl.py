@@ -1,5 +1,6 @@
 import time
 import board
+import card_reader/CardScanner
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 #import card_reader.CardScanner as CardScanner

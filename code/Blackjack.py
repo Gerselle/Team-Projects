@@ -1,16 +1,51 @@
-import Dealer
+import random
+import socket
+import MotorControl
+from Card_Reader import CardScanner
 
+LOCAL_SCANNER = False
+
+ranks = {"ace","2","3","4","5","6","7","8","9","10","jack","queen","king"}
+suits = {"clubs", "diamonds", "hearts", "spades"}
+dealt = []
 dealer = []
-players = [[]]
-values = ["Two","Three","Four","Five","Six","Seven","Eight","Nine"]
+player = []
 
-def dealCard(hand, facedUp):
+def start(client):
+    global dealt
+    global dealer 
+    global player
 
-    # TODO: Change this manual input into its respective DealerMotor.py function call.
-    input("Press enter button to deal card.")
-    card = Dealer.deal(facedUp)
+    dealt = []
+    dealer = []
+    player = []
+
+# Manual dealing to players and dealer in proper order.
+    deal(player)
+
+    deal(dealer)
+
+    deal(player)
+
+    deal(dealer)
+
+    result = "\nDealer has the following hand: " + printHand(dealer, True) + "\nYou have the following hand: " + printHand(player, True) + "\nYou have a current score of " + str(check(player))
+
+    client.send(bytes(result, "utf-8"))
+
+def deal(hand):
+    
+    if LOCAL_SCANNER:
+        card = CardScanner.scanCard
+    else: 
+        # TODO: Change this manual input into its respective DealerMotor.py function call.
+        card = random.choice(ranks) + "_of_" + random.choice(suits)
+
+        while card in dealt:
+            card = random.choice(ranks) + "_of_" + random.choice(suits)
 
     hand.append(card)
+    dealt.append(card)
 
     total = check(hand)
     blackjack = total == 21
@@ -18,15 +53,65 @@ def dealCard(hand, facedUp):
 
     return blackjack, bust
 
+def hit(client):
+    blackjack, bust = deal(player)
+
+    result = ""
+
+    if (blackjack):
+        result = "\nYou got Blackjack!"
+    elif(bust):
+        result = "\nYou busted with the following hand!: " + printHand(player, True) + "\nYour score was " + str(check(player))
+    else:
+        result = "\nYou have the following hand:"  + printHand(player, True) + "\nYou have a current score of " + str(check(player))
+    
+    client.send(bytes(result, "utf-8"))
+
+def stand(client):
+    result = "You stand with a score of " + str(check(player)) + "\nDealer has the following hand: " + printHand(dealer, True)
+
+    # Based on the rules, the dealer is forced to keep hitting until they reach 17 or more
+    if check(dealer) < 17:
+        result = result + "\nDealer's hand is less than 17, they must keeping hitting until their hand is equal or over 17.\n"
+        while check(dealer) < 17:
+            blackjack, bust = deal(dealer)
+            if bust:
+                result = result + "\nDealer busted! You won!"
+            if blackjack:
+                result = result + "\nDealer has Blackjack!"
+            
+                if(check(player) == 21):
+                     result = result + " It's a draw!"
+                else:
+                     result = result + " Dealer wins!"
+
+    result = result + "\nDealer ended the game with the following hand: " + printHand(dealer, True)
+
+    # Here, we print off the status of each player in comparison to where the dealer stands
+    # We should only use this if the dealer didn't get blackjack or didn't bust.
+    if check(dealer) < 21:
+        
+        if check(player) > check(dealer):
+            result = result + "\nYou beat the dealer!"
+        elif check(player) < check(dealer):
+            result = result + "\nYou lost to the dealer!"
+        else:
+            result = result + "\nYou drew with the dealer!"
+    
+    result = result + "\nYou ended with the following hand: " + printHand(player, True)
+    
+    client.send(bytes(result, "utf-8"))
 
 def printHand(hand, reveal):
     # Reveal should only be false if we are printing the dealer's hand for the first time.
+    handPrint = ""
     if reveal:
         for x in hand:
-            print(x)
+            handPrint = handPrint + "\n" + x
     else:
-        print(hand[0])
-        print("******")
+        handPrint = handPrint + "\n" + hand[0] + "\n******"
+    
+    return handPrint
 
 def check(hand):
 
@@ -39,7 +124,7 @@ def check(hand):
         if value[0] in ["Ten", "Jack", "Queen", "King"]:
             total += 10
         elif value[0] not in ["Ace"]:
-            total += values.index(value[0]) + 2
+            total += ranks.index(value[0]) + 2
         else:
             aces += 1     
 
@@ -55,94 +140,21 @@ def check(hand):
 
     return total + aces
    
+HOST = "localhost"
+PORT = 1337
 
-# CLI game starts here.
-print("Welcome to Blackjack!")
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
 
-# Dealing to players and dealer in proper order.
-for player in players:
-    dealCard(player, True)
-    printHand(player, True)
-
-dealCard(dealer, False)
-printHand(dealer, True)
-
-for player in players:
-    dealCard(player, True)
-    printHand(player, True)
-
-dealCard(dealer, True)
-printHand(dealer, True)
-
-print("\nDealer has the following hand:")
-printHand(dealer, False)
-
-# All players are assumed to be in the "remaining" array unless they bust, in which they will be removed.
-remaining = []
-
-# Perform hitting/standing sequence for each player, automatically report standing value unless player busts.
-for player in players:
-    print("\nPlayer has the following hand:")
-    printHand(player, True)
-    remaining.append(player)
-
-    if (check(player) == 21):
-        print("Player has Blackjack!")
-    else:
-        hitMe = input("Do you want to hit? Press y if so.\n")
-        if (hitMe == "y"):
-            while(hitMe == "y"):
-                blackjack, bust = dealCard(player)
-                if (blackjack):
-                    print("Player has Blackjack!")
-                    break
-                elif(bust):
-                    print("You busted with the following hand!: " )
-                    printHand(player, True)
-                    remaining.remove(player)
-                    break
-                else:
-                    print("\nPlayer has the following hand:")
-                    printHand(player, True)
-                    hitMe = input("Do you want to hit again? Press y if so.\n")
-
-        if player in remaining:
-            print("Player stands with a score of " + str(check(player)))
-
-# Dealer sequence starts here
-print("\nDealer has the following hand: ")
-printHand(dealer, True)
-
-# Based on the rules, the dealer is forced to keep hitting until they reach 17 or more
-if check(dealer) < 17:
-    print("\nDealer's hand is less than 17, they must keeping hitting until their hand is equal or over 17.")
-    while check(dealer) < 17:
-        blackjack, bust = dealCard(dealer)
-        if bust:
-            print("Dealer busted!\n The following player hands won the game: ")
-            for player in remaining:
-                printHand(player, True)
-        if blackjack:
-            print("Dealer has Blackjack!")
-            drawPlayers = []
-            for player in remaining:
-                if check(player) == 21:
-                    drawPlayers.append(player)
-            if(len(drawPlayers) > 0):
-                print("The following hands have drawn with the dealer: ")
-                for player in drawPlayers:
-                    printHand(player, True)
-            else:
-                print("Dealer wins!")
-
-# Here, we print off the status of each player in comparison to where the dealer stands
-# We should only use this if the dealer didn't get blackjack or didn't bust.
-if check(dealer) < 21:
-    for player in remaining:
-        if check(player) > check(dealer):
-            print("Player with the following hand has beaten the dealer!")
-        elif check(player) < check(dealer):
-            print("Player with the following hand lost to the dealer!")
-        else:
-            print("Player with the following hand has drawn with the dealer!")
-        printHand(player, True)
+    while True:
+        client, address = s.accept()
+        print(f"Connected by {address}")
+        data = client.recv(1024)
+        print(data)
+        if(data == b'0'):
+            hit(client)
+        elif(data == b'1'):
+            stand(client)
+        elif(data == b'2'):
+            start(client) 

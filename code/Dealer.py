@@ -1,7 +1,6 @@
 from adafruit_motorkit import MotorKit
 import card_reader.CardScanner as CardScanner
 
-
 # IMPORTANT: Ensure that motorAddr is the IC2 address of the dealer motor
 motorAddr = 0x60
 kit = MotorKit(motorAddr)
