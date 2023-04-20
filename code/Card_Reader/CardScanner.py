@@ -67,32 +67,38 @@ def scanCard():
     bestRank = 0
     bestSuit = 0
 
-    # Read a frame from the camera
-    ret, frame = cap.read()
-    
-    # Crop the frame to show only the suit and rank
-    fh, fw, c = frame.shape
-    frame = frame[:int(fh*CORNER_HEIGHT_RATIO), :int(fw*CORNER_WIDTH_RATIO)]
-    
-    # Convert the frame to grayscale then apply a threshold to improve reading accuracy
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    while True:
+        # Read a frame from the camera
+        ret, frame = cap.read()
+        
+        # Crop the frame to show only the suit and rank
+        fh, fw, c = frame.shape
+        frame = frame[:int(fh*CORNER_HEIGHT_RATIO), :int(fw*CORNER_WIDTH_RATIO)]
+        
+        # Convert the frame to grayscale then apply a threshold to improve reading accuracy
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-    y, x = thresh.shape
-    rankPic = picture(thresh, thresh[0:int(y/2),0:x], 0)
-    suitPic = picture(thresh, thresh[int(y/2):y,0:x], int(y/2))
+        y, x = thresh.shape
+        rankPic = picture(thresh, thresh[0:int(y/2),0:x], 0)
+        suitPic = picture(thresh, thresh[int(y/2):y,0:x], int(y/2))
 
-    # Use each cropped image to determine their respective value of the suit and card rank
-    for rank in rankTemplates:
-        match = matchValue(rankPic, rankTemplates[rank])
-        if match > bestRank:
-            bestRank = match
-            printRank = rank
+        # Use each cropped image to determine their respective value of the suit and card rank
+        for rank in rankTemplates:
+            match = matchValue(rankPic, rankTemplates[rank])
+            if match > bestRank:
+                bestRank = match
+                printRank = rank
 
-    for suit in suitTemplates:
-        match = matchValue(suitPic, suitTemplates[suit])
-        if match > bestSuit:
-            bestSuit = match
-            printSuit = suit
-            
-    return f"{printRank}_of_{printSuit}"
+        for suit in suitTemplates:
+            match = matchValue(suitPic, suitTemplates[suit])
+            if match > bestSuit:
+                bestSuit = match
+                printSuit = suit
+        
+        print(f"{printRank}_of_{printSuit}")
+        if cv2.waitKey(1) == ord('q'):
+            break
+        cv2.imshow("frame", frame)
+
+scanCard()

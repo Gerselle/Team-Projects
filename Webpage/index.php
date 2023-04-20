@@ -55,7 +55,7 @@ fclose($myfile);
     <form action = "login.php">
         <label for="">Already have an account:</label><br />
     <button>
-        Login
+        Game Lobby
     </button>
     </form>
 

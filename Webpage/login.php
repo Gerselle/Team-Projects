@@ -28,10 +28,10 @@ foreach($lines as $line) {
     
     if($loggedUser && $loggedPass && $count > 1){
      echo "Logged in";
-    $command = "python3 -c 'import FaceSearchCompare; test.face_detect(".$username.")'";
-    $output = shell_exec($command);
+    #$command = escapeshellcmd("python3 -c 'import FaceSearchCompare.py; FaceSearchCompare.face_detect(".$username.")'");
+    #$output = shell_exec($command);
     #echo $output;
-    header("Location: game.php?username=".$username);       
+    header("Location: game.php");       
     break;
     }elseif((($loggedUser || $loggedPass) || !($loggedUser && $loggedPass)) && $count >= $num){
         echo "Incorrect Username/Password";
@@ -63,12 +63,6 @@ foreach($lines as $line) {
         <div></div>
         <input type="submit"/>
         <div></div>
-    </form>
-    <form action="index.php" method="post">
-    	<label for="">Don't have an account:</label><br />
-    	<button>
-        Create Account
-    	</button>
     </form>
 </body>
 </head>

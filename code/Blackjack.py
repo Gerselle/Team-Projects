@@ -1,160 +1,161 @@
 import random
-import socket
-import MotorControl
-from Card_Reader import CardScanner
+import Player
+import json
 
-LOCAL_SCANNER = False
+REAL_CARDS = False
 
-ranks = {"ace","2","3","4","5","6","7","8","9","10","jack","queen","king"}
-suits = {"clubs", "diamonds", "hearts", "spades"}
-dealt = []
-dealer = []
-player = []
+class Blackjack:
+    def __init__(self, players):
+        self.players = players
+        self.dealt = []
+        self.dealer = Player.Player()
 
-def start(client):
-    global dealt
-    global dealer 
-    global player
+    def start(self):
 
-    dealt = []
-    dealer = []
-    player = []
+        for player in self.players:
+            self.deal(player)
 
-# Manual dealing to players and dealer in proper order.
-    deal(player)
+        self.deal(self.dealer)
 
-    deal(dealer)
+        for player in self.players:
+            self.deal(player)
 
-    deal(player)
+        self.deal(self.dealer)
 
-    deal(dealer)
+        # Update all the players
+        for player in self.players:
+            self.update(player)
 
-    result = "\nDealer has the following hand: " + printHand(dealer, True) + "\nYou have the following hand: " + printHand(player, True) + "\nYou have a current score of " + str(check(player))
+    def deal(self, player):
 
-    client.send(bytes(result, "utf-8"))
+        values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"]
+        suits = ["hearts", "diamonds", "clubs", "spades"]
 
-def deal(hand):
-    
-    if LOCAL_SCANNER:
-        card = CardScanner.scanCard
-    else: 
         # TODO: Change this manual input into its respective DealerMotor.py function call.
-        card = random.choice(ranks) + "_of_" + random.choice(suits)
+        if(REAL_CARDS):
+            print("Totally real here")
+        else:
+            card = random.choice(values) + "_of_" + random.choice(suits)
+            while card in self.dealt:
+                card = random.choice(values) + "_of_" + random.choice(suits)
+            self.dealt.append(card)
 
-        while card in dealt:
-            card = random.choice(ranks) + "_of_" + random.choice(suits)
+        player.addCard(card)
+        total = player.check()
+     
+        blackjack = total == 21
+        bust = total > 21
 
-    hand.append(card)
-    dealt.append(card)
+        return blackjack, bust
 
-    total = check(hand)
-    blackjack = total == 21
-    bust = total > 21
+    def hit(self, player):
+        blackjack, bust = self.deal(player)
 
-    return blackjack, bust
+        if (blackjack):
+            player.setState("Blackjack!")
+        elif(bust):
+            player.setState("Busted!")
+        else:
+            player.setState(player.check())
 
-def hit(client):
-    blackjack, bust = deal(player)
+        # Update all the players
+        for otherPlayer in self.players:
+            self.update(otherPlayer)
 
-    result = ""
+    def stand(self, player):
+        player.setState("Stand")
 
-    if (blackjack):
-        result = "\nYou got Blackjack!"
-    elif(bust):
-        result = "\nYou busted with the following hand!: " + printHand(player, True) + "\nYour score was " + str(check(player))
-    else:
-        result = "\nYou have the following hand:"  + printHand(player, True) + "\nYou have a current score of " + str(check(player))
-    
-    client.send(bytes(result, "utf-8"))
+        lobbyStand = True
 
-def stand(client):
-    result = "You stand with a score of " + str(check(player)) + "\nDealer has the following hand: " + printHand(dealer, True)
+        for player in self.players:
+            if(player.state != "Stand"):
+                lobbyStand = False
 
-    # Based on the rules, the dealer is forced to keep hitting until they reach 17 or more
-    if check(dealer) < 17:
-        result = result + "\nDealer's hand is less than 17, they must keeping hitting until their hand is equal or over 17.\n"
-        while check(dealer) < 17:
-            blackjack, bust = deal(dealer)
-            if bust:
-                result = result + "\nDealer busted! You won!"
-            if blackjack:
-                result = result + "\nDealer has Blackjack!"
-            
-                if(check(player) == 21):
-                     result = result + " It's a draw!"
-                else:
-                     result = result + " Dealer wins!"
+        if(lobbyStand):
+            # Based on the rules, the dealer is forced to keep hitting until they reach 17 or more
+            if self.check(self.dealer) < 17:
+                while self.check(self.dealer) < 17:
+                    blackjack, bust = self.deal(self.dealer)
 
-    result = result + "\nDealer ended the game with the following hand: " + printHand(dealer, True)
-
-    # Here, we print off the status of each player in comparison to where the dealer stands
-    # We should only use this if the dealer didn't get blackjack or didn't bust.
-    if check(dealer) < 21:
+                for player in self.players:
+                    if(not bust):
+                        if player.check() > self.dealer.check():
+                            player.setState("Won!")
+                            player.addChips(int(player.bet * 1.5))
+                        elif player.check() == self.dealer.check():
+                            player.setState("Draw!")
+                            player.addChips(player.bet)
+                        else:
+                            player.setState("Lost!")
+                    else:
+                        player.setState("Draw!")
+                        player.addChips(player.bet)
+                    player.resetBet()
         
-        if check(player) > check(dealer):
-            result = result + "\nYou beat the dealer!"
-        elif check(player) < check(dealer):
-            result = result + "\nYou lost to the dealer!"
-        else:
-            result = result + "\nYou drew with the dealer!"
+        # Update all the players
+        for otherPlayer in self.players:
+            self.update(otherPlayer)
+
+    def double(self, player):
+        if player.bet != 0:
+            player.setBet(2 * player.bet)
+            player.removeChips(player.bet)
+            player.setState(player.bet)
+
+        # Update all the players
+        for otherPlayer in self.players:
+            self.update(otherPlayer)
+
+
+    def bet(self, player, bet):
+        if player.bet == 0:
+            player.setBet(bet)
+            player.removeChips(bet)
+            player.setState(player.bet)
+            
+        # Update all the players
+        for otherPlayer in self.players:
+            self.update(otherPlayer)
+
+    def check(hand):
+        total = 0
+        aces = 0
+        values = ["2", "3", "4", "5", "6", "7", "8", "9"]
+
+        # First add up values of all non-ace cards in the hand.
+        for card in hand:
+            value = card.split("_")
+            if value[0] in ["10", "jack", "queen", "king"]:
+                total += 10
+            elif value[0] not in ["ace"]:
+                total += values.index(value[0]) + 2
+            else:
+                aces += 1     
+
+        # All aces expect for one will always add 1 to the total.
+        # The last ace will add 11 to the total iff the result does not exceed 21, otherwise it will also add 1.
+        if (aces):
+            while(aces > 1):
+                total += 1
+                aces -= 1
+
+            if total + 11 <= 21:
+                aces += 10
+
+        return total + aces
     
-    result = result + "\nYou ended with the following hand: " + printHand(player, True)
-    
-    client.send(bytes(result, "utf-8"))
+    def update(self, player):
 
-def printHand(hand, reveal):
-    # Reveal should only be false if we are printing the dealer's hand for the first time.
-    handPrint = ""
-    if reveal:
-        for x in hand:
-            handPrint = handPrint + "\n" + x
-    else:
-        handPrint = handPrint + "\n" + hand[0] + "\n******"
-    
-    return handPrint
+        updateData = {
+            "dealer-hand": self.dealer.hand,
+            "dealer-score": self.dealer.check(),
+            "blackjack-hand": player.hand,            
+            "blackjack-score": player.check(),
+            "blackjack-bet": player.bet,
+            "blackjack-chips": player.chips,
+            "gamemode": player.gamemode
+        }
 
-def check(hand):
-
-    total = 0
-    aces = 0
-
-    # First add up values of all non-ace cards in the hand.
-    for x in hand:
-        value = x.split(" ")
-        if value[0] in ["Ten", "Jack", "Queen", "King"]:
-            total += 10
-        elif value[0] not in ["Ace"]:
-            total += ranks.index(value[0]) + 2
-        else:
-            aces += 1     
-
-    # All aces expect for one will always add 1 to the total.
-    # The last ace will add 11 to the total iff the result does not exceed 21, otherwise it will also add 1.
-    if (aces):
-        while(aces > 1):
-            total += 1
-            aces -= 1
-
-        if total + 11 <= 21:
-            aces += 10
-
-    return total + aces
-   
-HOST = "localhost"
-PORT = 1337
-
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-
-    while True:
-        client, address = s.accept()
-        print(f"Connected by {address}")
-        data = client.recv(1024)
-        print(data)
-        if(data == b'0'):
-            hit(client)
-        elif(data == b'1'):
-            stand(client)
-        elif(data == b'2'):
-            start(client) 
+        print(updateData)
+        
+        player.update(updateData)
